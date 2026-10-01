@@ -59,13 +59,17 @@ def main():
     local_rank = int(os.environ.get("LOCAL_RANK", "0"))
     ddp = world > 1
     if ddp:
-        dist.init_process_group("nccl")
         torch.cuda.set_device(local_rank)
+        dist.init_process_group("nccl", device_id=torch.device("cuda", local_rank))
     device = f"cuda:{local_rank}" if ddp else "cuda"
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
+    if ddp and rank > 0:    # rank 0 downloads the encoder first; the others then read the cache
+        dist.barrier()
     encoder = Encoder(args.encoder, device)
+    if ddp and rank == 0:
+        dist.barrier()
     pad_id = encoder.pad_id
     data = load_from_disk(args.data)
     global_batch = args.batch_size * world * args.accum

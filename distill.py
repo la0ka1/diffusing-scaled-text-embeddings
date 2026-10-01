@@ -54,22 +54,26 @@ def main():
     ap.add_argument("--log-every", type=int, default=200)
     args = ap.parse_args()
 
-    ddp = "RANK" in os.environ
+    rank = int(os.environ.get("RANK", "0"))
+    world = int(os.environ.get("WORLD_SIZE", "1"))
+    local_rank = int(os.environ.get("LOCAL_RANK", "0"))
+    ddp = world > 1
     if ddp:
-        dist.init_process_group("nccl")
-        rank, world = dist.get_rank(), dist.get_world_size()
-        torch.cuda.set_device(rank)
-    else:
-        rank, world = 0, 1
+        torch.cuda.set_device(local_rank)
+        dist.init_process_group("nccl", device_id=torch.device("cuda", local_rank))
     dev = "cuda"
     torch.manual_seed(args.seed + rank)
     out = Path(args.out)
     if rank == 0:
         out.mkdir(parents=True, exist_ok=True)
 
+    if ddp and rank > 0:    # rank 0 downloads the teacher first; the others then read the cache
+        dist.barrier()
     tok = AutoTokenizer.from_pretrained(TEACHER)
-    pad_id = tok.pad_token_id
     model = AutoModelForSeq2SeqLM.from_pretrained(TEACHER)
+    if ddp and rank == 0:
+        dist.barrier()
+    pad_id = tok.pad_token_id
     teacher = text_encoder(model)
     if args.objective != "mse":
         seq2seq = model.model.float().to(dev).eval().requires_grad_(False)   # encoder-decoder without the LM head
@@ -80,7 +84,7 @@ def main():
 
     student, keep = init_student(teacher, args.layers)
     student = student.float().to(dev).train()
-    net = torch.nn.parallel.DistributedDataParallel(student, device_ids=[rank]) if ddp else student
+    net = torch.nn.parallel.DistributedDataParallel(student, device_ids=[local_rank]) if ddp else student
     params = [p for p in student.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(params, lr=args.lr, betas=(0.9, 0.95), weight_decay=0.01)
     sched = torch.optim.lr_scheduler.LambdaLR(     # linear warmup, then cosine decay
