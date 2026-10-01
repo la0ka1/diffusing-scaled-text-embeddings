@@ -43,7 +43,7 @@ Install [PyTorch](https://pytorch.org/get-started/locally/) for your CUDA versio
 pip install -r requirements.txt
 ```
 
-Tested with Python 3.10 and 3.11, PyTorch 2.7 and transformers 5.16-5.18. Sampling and evaluation need no
+Tested with Python 3.10 and 3.11, PyTorch 2.7 and 2.14, and transformers 5.16-5.18. Sampling and evaluation need no
 Hugging Face login: each checkpoint is downloaded, with the T5Gemma-2 tokenizer, from
 [its repository](https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197). Distilling, or
 training ELF on T5Gemma-2 or on the released student, builds the encoder from the gated
@@ -81,7 +81,7 @@ sampling steps.[^1] `evaluate.py` reports the perplexity of the generated text u
     row is the setting with the highest entropy.
 
 `examples/` holds 16 generated sequences per model at these settings (seed 0, text only; generated on an
-A100, and the exact sequences depend on the GPU type), for a look without a GPU.
+A100, and the exact sequences depend on the GPU type and the PyTorch version), for a look without a GPU.
 
 The real-text row and MAUVE compare against held-out OpenWebText, which `data.py` prepares once
 (it downloads OpenWebText but tokenizes only the held-out documents):
