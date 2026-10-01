@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
+<link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="any">
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      macros: {
+        bm: ["\\boldsymbol{#1}", 1]
+      }
+    },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const triggers = document.querySelectorAll('.inline-note-trigger');
+
+    triggers.forEach(function (trigger) {
+      trigger.addEventListener('click', function () {
+        const targetId = trigger.getAttribute('data-note-target');
+        const target = targetId ? document.getElementById(targetId) : null;
+
+        if (!target) return;
+
+        const isOpen = !target.hasAttribute('hidden');
+        target.toggleAttribute('hidden', isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+
+        if (isOpen || !window.MathJax || !window.MathJax.typesetPromise) return;
+        window.MathJax.typesetPromise([target]);
+      });
+    });
+  });
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>

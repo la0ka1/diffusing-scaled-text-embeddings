@@ -1,0 +1,7 @@
+torch>=2.7
+transformers>=5.12
+datasets>=4.0
+numpy
+# optional, for MAUVE in evaluate.py
+mauve-text
+faiss-cpu

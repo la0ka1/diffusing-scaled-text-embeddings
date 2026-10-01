@@ -1,0 +1,32 @@
+title: "Diffusing Scaled Text Embeddings"
+description: "Scaling and distilling text embeddings for continuous diffusion language models."
+url: "https://la0ka1.github.io"
+baseurl: "/diffusing-scaled-text-embeddings"
+repository: "la0ka1/diffusing-scaled-text-embeddings"
+
+remote_theme: "mmistakes/minimal-mistakes"
+minimal_mistakes_skin: "air"   # try: "air", "dark", "mint", "sunrise"
+
+plugins:
+  - jekyll-include-cache
+
+# local preview files, not part of the published page
+exclude:
+  - Dockerfile
+  - compose.yaml
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+author:
+  name: "Zekai Zhang"
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: single
+      classes: wide
+      toc: false
+      toc_sticky: false

@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+data/
+runs/
+*.pt
+samples*.json
+# Jekyll build output (docs/)
+docs/_site
+docs/.jekyll-cache
+docs/.sass-cache
+docs/.jekyll-metadata
+docs/.bundle
+# for the authors only
+HANDOVER.md
+convert_checkpoint.py

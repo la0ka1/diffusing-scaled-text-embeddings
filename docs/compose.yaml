@@ -1,0 +1,16 @@
+# Preview the project page locally (see Dockerfile):
+#   docker compose up            # build (first time) + serve
+#   docker compose up --build    # rebuild the image after changing the Gemfile
+#   docker compose down          # stop
+# The page is at http://localhost:4000/diffusing-scaled-text-embeddings/ (the
+# baseurl of _config.yml; the root URL alone shows a 404). Edits to index.md and
+# the CSS are picked up automatically; changes to _config.yml need a restart.
+services:
+  site:
+    build: .
+    image: diffusing-scaled-text-embeddings-page
+    ports:
+      - "4000:4000"    # site
+      - "35729:35729"  # livereload
+    volumes:
+      - .:/srv/site
