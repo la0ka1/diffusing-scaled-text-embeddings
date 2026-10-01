@@ -11,7 +11,7 @@ classes: wide
 <p class="button-row">
 <a class="btn btn--success" href="{{ site.github.repository_url }}"><i class="fab fa-github" aria-hidden="true"></i> Code</a>
 <a class="btn btn--arxiv" href="#"><i class="fas fa-file-alt" aria-hidden="true"></i> arXiv (coming soon)</a>
-<a class="btn btn--hf" href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><i class="fas fa-cubes" aria-hidden="true"></i> Checkpoints</a>
+<a class="btn btn--hf" href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><i class="fab fa-hugging-face" aria-hidden="true"></i> Checkpoints</a>
 </p>
 
 <p class="author-row">

@@ -11,9 +11,12 @@ plugins:
   - jekyll-include-cache
 
 # local preview files, not part of the published page
+# (GitHub Pages runs Jekyll 3, where this list replaces the default one, so the Gemfile is named too)
 exclude:
   - Dockerfile
   - compose.yaml
+  - Gemfile
+  - Gemfile.lock
 
 markdown: kramdown
 kramdown:

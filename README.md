@@ -9,7 +9,7 @@
 
 Code for the paper **Scaling and Distilling Text Embeddings for Better Diffusibility**.
 
-Continuous diffusion language models (DLMs) are a promising alternative to autoregressive models:
+Continuous diffusion language models (DLMs) are a promising alternative to autoregressive models, and they are
 latent diffusion on text embeddings. Which text embedding makes the best latent space for them,
 i.e. the most diffusible one? We fix the DLM to the recent [ELF](https://github.com/lillian039/ELF)
 framework and change only the embedding:
@@ -21,14 +21,13 @@ framework and change only the embedding:
   reducing Gen. PPL from 19.3 to 17.8 at real-text entropy and sampling more stably.
 
 <p align="center">
-  <img src="figures/teaser.png" alt="Left: Gen. PPL against entropy for ELF on different embeddings. Right: the candidates of one position in the T5Gemma-2 and in the student embedding space" width="90%">
+  <img src="figures/teaser.png" alt="Left: Gen. PPL against entropy for ELF on different embeddings. Right: the candidates of one position in the T5Gemma-2 and in the student embedding space" width="80%">
 </p>
 
-We initialize the 9-layer student from half of the teacher's 18 layers and train it on the soft
-labels of the frozen teacher decoder:
+We train the student on the soft labels, i.e. the predicted probabilities from the teacher decoder:
 
 <p align="center">
-  <a href="figures/distillation.png"><img src="figures/distillation.png" alt="Distillation pipeline: the frozen teacher decoder reads the student's embeddings, and the student matches the teacher's token probabilities" width="90%"></a>
+  <a href="figures/distillation.png"><img src="figures/distillation.png" alt="Distillation pipeline: the frozen teacher decoder reads the student's embeddings, and the student matches the teacher's token probabilities" width="80%"></a>
 </p>
 
 This repository offers the sampling code and the [checkpoints](https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197) to
