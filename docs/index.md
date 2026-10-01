@@ -5,7 +5,7 @@ layout: single
 classes: wide
 ---
 
-<p class="home-heading"><a href="https://la0ka1.github.io/" aria-label="Back to homepage"><span aria-hidden="true">&larr;</span> Back to homepage</a></p>
+<p class="home-heading"><a href="https://la0ka1.github.io/blogs/" aria-label="Back to blogs"><span aria-hidden="true">&larr;</span> Back to blogs</a></p>
 
 <!-- TODO before publishing: set the arXiv link; add alphaXiv / slides buttons when they exist. We can also publish first and then update. -->
 <p class="button-row">
