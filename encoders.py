@@ -93,7 +93,7 @@ class Encoder:
             model.load_state_dict(ckpt["student_sd"])
         else:
             self.tokenizer_name = TOKENIZER if name == TEACHER else name
-            model = AutoModel.from_pretrained(name).get_encoder()
+            model = text_encoder(AutoModel.from_pretrained(name))   # for T5Gemma-2: without the vision tower
         self.model = model.to(device).eval().requires_grad_(False)
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
         self.pad_id = self.tokenizer.pad_token_id
