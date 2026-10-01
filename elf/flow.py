@@ -18,7 +18,7 @@ SC_SCALE_MIN, SC_SCALE_MAX = 0.5, 5.0
 DECODER_PROB = 0.2                  # fraction of training steps spent on the decoding task
 DECODER_NOISE_SCALE = 5.0
 DECODER_P_MEAN, DECODER_P_STD = 0.8, 0.8
-DECODE_CHUNK = 16
+DECODE_CHUNK = 4                    # sequences decoded at once; their (chunk, L, vocab) logits take ~1 GB each
 
 
 def sample_timesteps(gen, n, device):
