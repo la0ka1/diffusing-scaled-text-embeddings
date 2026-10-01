@@ -10,8 +10,8 @@ classes: wide
 <!-- TODO before publishing: set the arXiv link; add alphaXiv / slides buttons when they exist. We can also publish first and then update. -->
 <p class="button-row">
 <a class="btn btn--success" href="{{ site.github.repository_url }}"><i class="fab fa-github" aria-hidden="true"></i> Code</a>
-<a class="btn btn--arxiv" href="#"><i class="fas fa-file-alt" aria-hidden="true"></i> arXiv (coming soon)</a>
-<a class="btn btn--hf" href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><i class="fab fa-hugging-face" aria-hidden="true"></i> Checkpoints</a>
+<a class="btn btn--arxiv btn--soon" href="#" aria-disabled="true" tabindex="-1"><i class="fas fa-file-alt" aria-hidden="true"></i> arXiv (coming soon)</a>
+<a class="btn btn--hf" href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><img class="btn-logo" src="{{ '/assets/figures/hf-logo.svg' | relative_url }}" alt="" aria-hidden="true"> Checkpoints</a>
 </p>
 
 <p class="author-row">
