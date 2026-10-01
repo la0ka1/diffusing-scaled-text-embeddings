@@ -37,11 +37,13 @@ on OpenWebText.
 
 ## Setup
 
+Install [PyTorch](https://pytorch.org/get-started/locally/) for your CUDA version, then
+
 ```bash
 pip install -r requirements.txt
 ```
 
-Tested with Python 3.10, PyTorch 2.7 and transformers 5.16. Sampling and evaluation need no
+Tested with Python 3.10 and 3.11, PyTorch 2.7 and transformers 5.16-5.18. Sampling and evaluation need no
 Hugging Face login: each checkpoint is downloaded, with the T5Gemma-2 tokenizer, from
 [its repository](https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197). Distilling, or
 training ELF on T5Gemma-2 or on the released student, builds the encoder from the gated
@@ -74,11 +76,12 @@ sampling steps.[^1] `evaluate.py` reports the perplexity of the generated text u
 
 [^1]: The SDE sampler with churn 1.5 and noise scale 2.0. Sampling needs only the ELF checkpoint
     and the tokenizer: ELF decodes its embeddings with its own head, so the encoder is never loaded.
+    It fits in 16 GB of GPU memory at the default `--batch-size 64`.
 [^2]: T5Gemma-2 with ELF-B never reaches the entropy of real text on our sampling grid, so its
     row is the setting with the highest entropy.
 
-`examples/` holds 16 generated sequences per model at these settings (seed 0, text only), for a look
-without a GPU.
+`examples/` holds 16 generated sequences per model at these settings (seed 0, text only; generated on an
+A100, and the exact sequences depend on the GPU type), for a look without a GPU.
 
 The real-text row and MAUVE compare against held-out OpenWebText, which `data.py` prepares once
 (it downloads OpenWebText but tokenizes only the held-out documents):
