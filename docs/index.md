@@ -7,10 +7,10 @@ classes: wide
 
 <p class="home-heading"><a href="https://la0ka1.github.io/blogs/" aria-label="Back to blogs"><span aria-hidden="true">&larr;</span> Back to blogs</a></p>
 
-<!-- TODO before publishing: set the arXiv link; add alphaXiv / slides buttons when they exist. We can also publish first and then update. -->
+<!-- TODO: add alphaXiv / slides buttons when they exist. -->
 <p class="button-row">
 <a class="btn btn--success" href="{{ site.github.repository_url }}"><i class="fab fa-github" aria-hidden="true"></i> Code</a>
-<a class="btn btn--arxiv btn--soon" href="#" aria-disabled="true" tabindex="-1"><i class="fas fa-file-alt" aria-hidden="true"></i> arXiv (coming soon)</a>
+<a class="btn btn--arxiv" href="https://arxiv.org/abs/2610.01016"><i class="fas fa-file-alt" aria-hidden="true"></i> arXiv</a>
 <a class="btn btn--hf" href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><img class="btn-logo" src="{{ '/assets/figures/hf-logo.svg' | relative_url }}" alt="" aria-hidden="true"> Checkpoints</a>
 </p>
 
@@ -133,6 +133,7 @@ $$
 @article{zhang2026scaling,
   title={Scaling and Distilling Text Embeddings for Better Diffusibility},
   author={Zhang, Zekai and Tian, Yunjie and He, Yanjin and Zhang, Xiaoyan and Zhao, Dongdi and Qu, Qing and Fu, Di},
+  journal={arXiv preprint arXiv:2610.01016},
   year={2026}
 }
 ```

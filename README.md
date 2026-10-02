@@ -2,12 +2,12 @@
 
 <p align="center">
   <a href="https://la0ka1.github.io/diffusing-scaled-text-embeddings/"><img alt="Blog" src="https://img.shields.io/badge/Blog-GitHub%20Pages-2ea44f.svg"></a>
-  <a href="#"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-coming%20soon-b31b1b.svg"></a>
+  <a href="https://arxiv.org/abs/2610.01016"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2610.01016-b31b1b.svg"></a>
   <a href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><img alt="Checkpoints" src="https://img.shields.io/badge/Checkpoints-Hugging%20Face-ffcc4d.svg"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
 
-Code for the paper **Scaling and Distilling Text Embeddings for Better Diffusibility**.
+Code for the paper [**Scaling and Distilling Text Embeddings for Better Diffusibility**](https://arxiv.org/abs/2610.01016).
 
 Continuous diffusion language models (DLMs) are a promising alternative to autoregressive models, and they are
 latent diffusion on text embeddings. Which text embedding makes the best latent space for them,
@@ -147,12 +147,13 @@ The files in `elf/` and the metrics in `evaluate.py` are derived from
 [ELF-pytorch](https://github.com/Ugness/ELF-pytorch) (MIT License; its notice is kept in
 `LICENSE`), and the data format in `data.py` follows [ELF](https://github.com/lillian039/ELF).
 
-<!-- ## Citation
+## Citation
 
 ```bibtex
 @article{zhang2026scaling,
   title={Scaling and Distilling Text Embeddings for Better Diffusibility},
   author={Zhang, Zekai and Tian, Yunjie and He, Yanjin and Zhang, Xiaoyan and Zhao, Dongdi and Qu, Qing and Fu, Di},
+  journal={arXiv preprint arXiv:2610.01016},
   year={2026}
 }
-``` -->
+```
