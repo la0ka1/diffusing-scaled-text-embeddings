@@ -7,10 +7,10 @@ classes: wide
 
 <p class="home-heading"><a href="https://la0ka1.github.io/blogs/" aria-label="Back to blogs"><span aria-hidden="true">&larr;</span> Back to blogs</a></p>
 
-<!-- TODO: add alphaXiv / slides buttons when they exist. -->
 <p class="button-row">
 <a class="btn btn--success" href="{{ site.github.repository_url }}"><i class="fab fa-github" aria-hidden="true"></i> Code</a>
 <a class="btn btn--arxiv" href="https://arxiv.org/abs/2610.01016"><i class="fas fa-file-alt" aria-hidden="true"></i> arXiv</a>
+<a class="btn btn--alpha" href="https://www.alphaxiv.org/abs/2610.01016"><i class="fas fa-comments" aria-hidden="true"></i> alphaXiv</a>
 <a class="btn btn--hf" href="https://huggingface.co/collections/la0ka1/diffusing-scaled-text-embeddings-6abd7ff3c91fd70bd749c197"><img class="btn-logo" src="{{ '/assets/figures/hf-logo.svg' | relative_url }}" alt="" aria-hidden="true"> Checkpoints</a>
 </p>
 
@@ -26,25 +26,30 @@ classes: wide
 ---
 
 <p class="lead-italic"><em>Which embedding should a continuous diffusion language model use?</em></p>
-<p>A continuous diffusion language model (DLM) is latent diffusion on text: a frozen <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-setup" data-note-target="note-setup">embedding model</button> maps tokens to embeddings, a denoiser learns to generate these embeddings, and a decoder maps them back to tokens.</p>
+<p>A typical family of continuous diffusion language models (DLMs) applies latent diffusion to text: we first use a frozen <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-setup" data-note-target="note-setup">embedding model</button> to map tokens to embeddings, then train a denoiser to generate these embeddings, and finally decode them back to tokens.</p>
 <div id="note-setup" class="inline-note-body" hidden>
 
-<p>We follow <a href="https://github.com/Ugness/ELF-pytorch">ELF</a>, where a token sequence \(\bm{s}\) becomes \(\bm{x}=\mathrm{Emb}(\bm{s})\in\mathbb{R}^{L\times d}\), and the rest is standard Gaussian diffusion:</p>
-$$
-\mathcal{L} = \mathbb{E}_{t,\bm{x},\bm{\epsilon}}\Big[\tfrac{1}{(1-t)^2}\,\big\|\bm{x}_\theta(\bm{z}_t,t)-\bm{x}\big\|^2\Big], \qquad \bm{z}_t = t\bm{x}+(1-t)\bm{\epsilon}.
-$$
-<p>Early work tried co-trained or simple embeddings (from a lookup table), but later people found that pretrained embeddings improve over them, and we seek their full potential.</p>
+<p>A token sequence \(\bm{s}\) becomes \(\bm{x}=\mathrm{Emb}(\bm{s})\in\mathbb{R}^{L\times d}\), and the denoiser treats \(\bm{x}\) as a continuous signal. Early work tried co-trained or simple embeddings (from a lookup table), but later people found that pretrained embeddings improve over them, and we seek their full potential.</p>
 
 </div>
 
-<p>The image diffusion guys have asked the same question for years: which latent is easy to diffuse? For text it is mostly open. So we keep the diffusion fixed and change only the embedding.</p>
+<p>The image diffusion guys have asked the same question for years: which latent is easy to diffuse? For text it is mostly open. So we keep the diffusion fixed and change only the embedding. We follow <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-elf" data-note-target="note-elf">ELF</button>, a recent continuous DLM, but the argument is not restricted to a specific diffusion recipe.</p>
+<div id="note-elf" class="inline-note-body" hidden>
+
+<p><a href="https://github.com/Ugness/ELF-pytorch">ELF</a> runs standard Gaussian diffusion on the embeddings:</p>
+$$
+\mathcal{L} = \mathbb{E}_{t,\bm{x},\bm{\epsilon}}\Big[\tfrac{1}{(1-t)^2}\,\big\|\bm{x}_\theta(\bm{z}_t,t)-\bm{x}\big\|^2\Big], \qquad \bm{z}_t = t\bm{x}+(1-t)\bm{\epsilon}.
+$$
+<p>We change only \(\mathrm{Emb}\) and keep everything else as is.</p>
+
+</div>
 
 <img class="feature-figure" src="{{ '/assets/figures/fig_teaser_combined.png' | relative_url }}" alt="Left: generative perplexity against entropy for the same diffusion model trained on different embeddings. Right: generated embeddings among candidate words, for T5Gemma-2 and for the distilled student." width="90%" style="display:block;margin:auto;" />
 <p class="figure-caption"><strong>Overview.</strong> Left: the same DLM on different embeddings. Right: on T5Gemma-2 a generated embedding can deviate from the plausible words; on the distilled student it lands among them.</p>
 
 ---
 <p class="lead-italic"><em>A scaling behavior in the latents for continuous DLMs.</em></p>
-<p>We find a <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-scaling" data-note-target="note-scaling">scaling</button> behavior within the T5 family of encoder-decoder models (T5-small/base &rarr; T5Gemma-1 &rarr; T5Gemma-2): generation improves along with the models. T5Gemma-2 cuts the generative perplexity by about 40% at the same entropy as T5-small.</p>
+<p>We find a <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-scaling" data-note-target="note-scaling">scaling</button> behavior within the T5 family of encoder-decoder models (T5-small/base &rarr; T5Gemma-1 &rarr; T5Gemma-2). The generative performance improves along with the representation power of the embeddings. Using T5Gemma-2 cuts the generative perplexity by about 40% at the same entropy as T5-small.</p>
 <div id="note-scaling" class="inline-note-body" hidden>
 
 <p>By scaling we mean updating to a stronger embedding model of the same family, pretrained with more data and a better recipe, and not only adding parameters.</p>
@@ -58,7 +63,7 @@ $$
 
 ---
 <p class="lead-italic"><em>But scaled embeddings are hard to generate perfectly.</em></p>
-<p>When we look at the generated embeddings, some of them are far from every word that could fit the position. We call such an embedding <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-invalid" data-note-target="note-invalid">invalid</button>. It can still be decoded, but with low confidence or to a wrong word, and it tends to cause grammar mistakes that hurt generation.</p>
+<p>When we look at the generated embeddings, we find that some are far from every possible word for their position. We call such an embedding <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-invalid" data-note-target="note-invalid">invalid</button>. It can still be decoded, but with low confidence or to a wrong word, and it tends to cause grammar mistakes and hurt generation.</p>
 <div id="note-invalid" class="inline-note-body" hidden>
 
 <p>For a position, take the top-\(k\) candidate words of the decoder and their real embeddings \(\bm{x}_1,\dots,\bm{x}_k\). A generated embedding \(\hat{\bm{x}}\) is invalid if</p>
@@ -72,7 +77,7 @@ $$
 <img class="feature-figure" src="{{ '/assets/figures/fig_degen_realvsgen_w2.png' | relative_url }}" alt="A generated sample with uncertain tokens marked, and four positions drawn among their candidate words." width="90%" style="display:block;margin:auto;" />
 <p class="figure-caption"><strong>Embedding errors in a generated sample.</strong> Purple tokens are decoded with low confidence. Below, each disk is the range of a candidate word; an invalid embedding lands outside every disk.</p>
 
-<p>This may be an inherent problem of continuous diffusion trained with MSE. <strong>MSE is not "accurate": it is mode-averaging.</strong> The MSE-optimal denoiser predicts the <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-mse" data-note-target="note-mse">conditional mean</button>: when several words fit a position, it is a combination of them. A scaled encoder keeps these words far apart, making the combination ambiguous and guiding the sampling into the empty space between them.</p>
+<p>This may be an inherent mismatch: <strong>the MSE used in continuous diffusion is not "accurate" or sharp enough. It is mode-averaging, while language is discrete and multimodal, with several separate words fitting the same position.</strong> The MSE-optimal denoiser predicts the <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-mse" data-note-target="note-mse">conditional mean</button>, which is essentially a combination of the candidate words of a position. A scaled encoder keeps these words far apart, making the combination ambiguous and guiding the sampling into the empty space between them.</p>
 <div id="note-mse" class="inline-note-body" hidden>
 
 <p>The minimizer of \(\mathbb{E}\,\|\bm{x}_\theta(\bm{z}_t,t)-\bm{x}\|^2\) is \(\bm{x}_\theta(\bm{z}_t,t)=\mathbb{E}[\bm{x}\mid\bm{z}_t]\). If the position could hold the words \(\bm{x}_1,\dots,\bm{x}_k\) with probabilities \(p_1,\dots,p_k\), this is \(\sum_i p_i\bm{x}_i\): a point inside their convex hull.</p>
@@ -81,7 +86,7 @@ $$
 
 ---
 <p class="lead-italic"><em>Distilling with soft labels reduces the embedding error.</em></p>
-<p>We distill the T5Gemma-2 encoder into a student encoder that learns the teacher decoder's probabilities as <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-kd" data-note-target="note-kd">soft labels</button>. The soft labels contain information about the plausible words of a position, so the student places these words closer and becomes more robust.</p>
+<p>To mitigate this, we distill the T5Gemma-2 encoder into a student encoder that learns the teacher decoder's probabilities as <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-kd" data-note-target="note-kd">soft labels</button>. The soft labels contain information about the plausible words of a position, so the student places these words closer and becomes more robust.</p>
 <div id="note-kd" class="inline-note-body" hidden>
 
 $$
@@ -120,9 +125,10 @@ $$
 ---
 <p class="lead-italic"><em>Future directions.</em></p>
 <ul>
-<li>Few-step generation: ELF trained on raw T5Gemma-2 embeddings collapses at small NFEs, and a forgiving latent should hold up better.</li>
+<li>Few-step generation: ELF trained on raw T5Gemma-2 embeddings collapses at small NFEs. The student embeddings collapse much less, but there is still room to improve.</li>
+<!-- <li>Instruction following: our DLMs generate freely on OpenWebText, and it remains to be seen whether a more diffusible latent also helps when the model has to follow a prompt.</li> -->
 <li>Larger models for practical tasks such as QA, as that is where a latent has to earn its keep.</li>
-<li>Using autoregressive models directly as embedding models, dropping the Gemma &rarr; T5Gemma &rarr; ELF detour: if an LLM's own hidden states can be made diffusible, continuous DLMs ride on every LLM release.</li>
+<li>Using autoregressive models directly as embedding models, dropping the Gemma &rarr; T5Gemma &rarr; ELF detour. If one can make an LLM's own hidden states diffusible, continuous DLMs can ride on every LLM release.</li>
 </ul>
 
 ---
