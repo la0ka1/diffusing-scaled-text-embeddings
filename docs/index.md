@@ -77,7 +77,7 @@ $$
 <img class="feature-figure" src="{{ '/assets/figures/fig_degen_realvsgen_w2.png' | relative_url }}" alt="A generated sample with uncertain tokens marked, and four positions drawn among their candidate words." width="90%" style="display:block;margin:auto;" />
 <p class="figure-caption"><strong>Embedding errors in a generated sample.</strong> Purple tokens are decoded with low confidence. Below, each disk is the range of a candidate word; an invalid embedding lands outside every disk.</p>
 
-<p>This may be an inherent mismatch. <strong>Language is discrete and multimodal: several separate words can fit the same position. MSE, however, is not "accurate" but mode-averaging.</strong> The MSE-optimal denoiser predicts the <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-mse" data-note-target="note-mse">conditional mean</button>, a weighted combination of the candidate words.</p>
+<p>This may be an inherent mismatch. <strong>Language is discrete and multimodal, where several separate words can fit the same position. MSE (used in continuous diffusion), however, is mode-averaging.</strong> The MSE-optimal denoiser predicts the <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-mse" data-note-target="note-mse">conditional mean</button>, a weighted combination of the candidate words.</p>
 <div id="note-mse" class="inline-note-body" hidden>
 
 <p>The minimizer of \(\mathbb{E}\,\|\bm{x}_\theta(\bm{z}_t,t)-\bm{x}\|^2\) is \(\bm{x}_\theta(\bm{z}_t,t)=\mathbb{E}[\bm{x}\mid\bm{z}_t]\). If the position could hold the words \(\bm{x}_1,\dots,\bm{x}_k\) with probabilities \(p_1,\dots,p_k\), this is \(\sum_i p_i\bm{x}_i\): a point inside their convex hull.</p>
@@ -118,7 +118,7 @@ $$
 <p class="lead-italic"><em>Future directions.</em></p>
 <ul>
 <li>Few-step generation: ELF trained on raw T5Gemma-2 embeddings collapses at small NFEs. The student embeddings collapse much less, but can still be improved.</li>
-<li>Larger models for practical tasks such as QA and instruction following, as that is where a latent has to earn its keep.</li>
+<li>Scaling to larger models for practical tasks such as QA, instruction following, and even reasoning.</li>
 <li>Using autoregressive models directly as embedding models, dropping the Gemma &rarr; T5Gemma &rarr; ELF detour. If one can directly make an LLM's activations diffusible, continuous DLMs can ride on every LLM release.</li>
 </ul>
 
