@@ -26,14 +26,14 @@ classes: wide
 ---
 
 <p class="lead-italic"><em>Which embedding should a continuous diffusion language model use?</em></p>
-<p>A typical family of continuous diffusion language models (DLMs) applies latent diffusion to text: we first use a frozen <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-setup" data-note-target="note-setup">embedding model</button> to map tokens to embeddings, then train a denoiser to generate these embeddings, and finally decode them back to tokens.</p>
+<p>A typical family of continuous diffusion language models (DLMs) applies latent diffusion to text, where we first use a frozen embedding model to <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-setup" data-note-target="note-setup">map tokens to embeddings</button>, then train a denoiser to generate these embeddings, and finally decode them back to tokens.</p>
 <div id="note-setup" class="inline-note-body" hidden>
 
-<p>A token sequence \(\bm{s}\) becomes \(\bm{x}=\mathrm{Emb}(\bm{s})\in\mathbb{R}^{L\times d}\), and the denoiser treats \(\bm{x}\) as a continuous signal. Early work tried co-trained or simple embeddings (from a lookup table), but later people found that pretrained embeddings improve over them, and we seek their full potential.</p>
+<p>A token sequence \(\bm{s}\) becomes \(\bm{x}=\mathrm{Emb}(\bm{s})\in\mathbb{R}^{L\times d}\), and we denoise \(\bm{x}\) as continuous vectors. Early work tried co-trained or simple embeddings (from a lookup table), but later people found that pretrained embeddings improve over them, and we seek their full potential.</p>
 
 </div>
 
-<p>The image diffusion guys have asked the same question for years: which latent is easy to diffuse? For text it is mostly open. So we keep the diffusion fixed and change only the embedding. We follow <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-elf" data-note-target="note-elf">ELF</button>, a recent continuous DLM, but the argument is not restricted to a specific diffusion recipe.</p>
+<p>The image diffusion guys have asked the same question for years: which latent is easy to diffuse? For text it is mostly open. So we keep the diffusion fixed and change only the embedding. We follow <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-elf" data-note-target="note-elf">ELF</button>, a recent continuous DLM, but our argument is not restricted to a specific diffusion recipe.</p>
 <div id="note-elf" class="inline-note-body" hidden>
 
 <p><a href="https://github.com/Ugness/ELF-pytorch">ELF</a> runs standard Gaussian diffusion on the embeddings:</p>
@@ -77,26 +77,18 @@ $$
 <img class="feature-figure" src="{{ '/assets/figures/fig_degen_realvsgen_w2.png' | relative_url }}" alt="A generated sample with uncertain tokens marked, and four positions drawn among their candidate words." width="90%" style="display:block;margin:auto;" />
 <p class="figure-caption"><strong>Embedding errors in a generated sample.</strong> Purple tokens are decoded with low confidence. Below, each disk is the range of a candidate word; an invalid embedding lands outside every disk.</p>
 
-<p>This may be an inherent mismatch: <strong>the MSE used in continuous diffusion is not "accurate" or sharp enough. It is mode-averaging, while language is discrete and multimodal, with several separate words fitting the same position.</strong> The MSE-optimal denoiser predicts the <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-mse" data-note-target="note-mse">conditional mean</button>, which is essentially a combination of the candidate words of a position. A scaled encoder keeps these words far apart, making the combination ambiguous and guiding the sampling into the empty space between them.</p>
+<p>This may be an inherent mismatch. <strong>Language is discrete and multimodal: several separate words can fit the same position. MSE, however, is not "accurate" but mode-averaging.</strong> The MSE-optimal denoiser predicts the <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-mse" data-note-target="note-mse">conditional mean</button>, a weighted combination of the candidate words.</p>
 <div id="note-mse" class="inline-note-body" hidden>
 
 <p>The minimizer of \(\mathbb{E}\,\|\bm{x}_\theta(\bm{z}_t,t)-\bm{x}\|^2\) is \(\bm{x}_\theta(\bm{z}_t,t)=\mathbb{E}[\bm{x}\mid\bm{z}_t]\). If the position could hold the words \(\bm{x}_1,\dots,\bm{x}_k\) with probabilities \(p_1,\dots,p_k\), this is \(\sum_i p_i\bm{x}_i\): a point inside their convex hull.</p>
 
 </div>
 
+<p>A scaled encoder keeps these words far apart, so the combination falls into the empty space between them, and the sampling is guided there.</p>
+
 ---
 <p class="lead-italic"><em>Distilling with soft labels reduces the embedding error.</em></p>
-<p>To mitigate this, we distill the T5Gemma-2 encoder into a student encoder that learns the teacher decoder's probabilities as <button class="inline-note-trigger" type="button" aria-expanded="false" aria-controls="note-kd" data-note-target="note-kd">soft labels</button>. The soft labels contain information about the plausible words of a position, so the student places these words closer and becomes more robust.</p>
-<div id="note-kd" class="inline-note-body" hidden>
-
-$$
-\mathcal{L}_{\mathrm{KD}}(\theta)=\sum_{j=1}^{L}\mathrm{KL}\big(p^{\mathrm{T}}_j\,\|\,p^{\mathrm{S}}_j\big),\qquad
-p^{\mathrm{T}}=\mathrm{Dec}^{\mathrm{T}}(\mathrm{Enc}^{\mathrm{T}}(\bm{s})),\quad
-p^{\mathrm{S}}=\mathrm{Dec}^{\mathrm{T}}(\mathrm{Enc}^{\mathrm{S}}_\theta(\bm{s})).
-$$
-<p>The decoder is the frozen teacher decoder in both cases. The student has 9 of the teacher's 18 layers.</p>
-
-</div>
+<p>To mitigate this, we distill the T5Gemma-2 encoder into a student encoder that learns the teacher decoder's probabilities as soft labels. These carry information about the plausible words of a position, so the student places these words closer and becomes more robust.</p>
 
 <img class="feature-figure" src="{{ '/assets/figures/fig_distill_unified.png' | relative_url }}" alt="The distillation pipeline and its effect on the embeddings of candidate words." width="80%" style="display:block;margin:auto;" />
 <p class="figure-caption"><strong>Distillation.</strong> The student matches the teacher's decoded probabilities, and the embeddings of plausible words move closer.</p>
@@ -125,10 +117,9 @@ $$
 ---
 <p class="lead-italic"><em>Future directions.</em></p>
 <ul>
-<li>Few-step generation: ELF trained on raw T5Gemma-2 embeddings collapses at small NFEs. The student embeddings collapse much less, but there is still room to improve.</li>
-<!-- <li>Instruction following: our DLMs generate freely on OpenWebText, and it remains to be seen whether a more diffusible latent also helps when the model has to follow a prompt.</li> -->
-<li>Larger models for practical tasks such as QA, as that is where a latent has to earn its keep.</li>
-<li>Using autoregressive models directly as embedding models, dropping the Gemma &rarr; T5Gemma &rarr; ELF detour. If one can make an LLM's own hidden states diffusible, continuous DLMs can ride on every LLM release.</li>
+<li>Few-step generation: ELF trained on raw T5Gemma-2 embeddings collapses at small NFEs. The student embeddings collapse much less, but can still be improved.</li>
+<li>Larger models for practical tasks such as QA and instruction following, as that is where a latent has to earn its keep.</li>
+<li>Using autoregressive models directly as embedding models, dropping the Gemma &rarr; T5Gemma &rarr; ELF detour. If one can directly make an LLM's activations diffusible, continuous DLMs can ride on every LLM release.</li>
 </ul>
 
 ---
